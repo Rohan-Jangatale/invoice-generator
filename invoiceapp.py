@@ -22,8 +22,9 @@ st.divider()
 # --- Item Entry Section ---
 st.subheader("🛒 Add Items")
 
-if "items" not in st.session_state:
-    st.session_state.items = []
+# ✅ Use a non-conflicting key name
+if "invoice_items" not in st.session_state:
+    st.session_state.invoice_items = []
 
 with st.form("add_item_form"):
     col1, col2, col3 = st.columns(3)
@@ -32,16 +33,17 @@ with st.form("add_item_form"):
     price = col3.number_input("Price (₹)", min_value=0.0, value=0.0)
     add_btn = st.form_submit_button("Add Item")
 
+# ✅ Append new item to the correct list
 if add_btn and item_name:
-    st.session_state.items.append({
+    st.session_state.invoice_items.append({
         "name": item_name,
         "quantity": quantity,
         "price": price
     })
     st.success(f"✅ Added {item_name}")
 
-# --- Display Invoice on Screen ---
-if st.session_state.items:
+# --- Display Invoice ---
+if st.session_state.invoice_items:
     st.subheader("🧾 Invoice Preview")
 
     invoice_no = f"INV-{datetime.now().strftime('%Y%m%d%H%M%S')}"
@@ -56,7 +58,7 @@ if st.session_state.items:
     st.markdown("---")
 
     total = 0
-    for idx, item in enumerate(st.session_state.items, start=1):
+    for idx, item in enumerate(st.session_state.invoice_items, start=1):
         amount = item["quantity"] * item["price"]
         total += amount
         st.write(f"{idx}. {item['name']} - {item['quantity']} × ₹{item['price']:.2f} = ₹{amount:.2f}")
@@ -73,7 +75,7 @@ if st.session_state.items:
     st.info("📋 This is your invoice summary (not downloadable).")
 
     if st.button("🗑️ Clear All Items"):
-        st.session_state.items = []
+        st.session_state.invoice_items = []
         st.success("All items cleared!")
 
 else:
